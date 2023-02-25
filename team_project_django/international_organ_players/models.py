@@ -59,4 +59,30 @@ class OrganDonor(models.Model):
     def __str__(self):
         return f"{self.gender} patient, age {self.age}"
 
+class OrganData(models.Model):
+    organ = models.CharField(max_length=32, primary_key=True)
+    operation_time = models.PositiveIntegerField()
+    max_delivery_time = models.PositiveIntegerField()
+    difficulty_of_operation = models.CharField(max_length=32, default='easy')
+    min_price = models.PositiveIntegerField()
+    max_price = models.PositiveIntegerField()
+    difficulty_of_transportation = models.CharField(max_length=64, default='easy')
+    people_to_transport = models.PositiveIntegerField()
+    nurses_on_the_operation = models.PositiveIntegerField()
+    anesthesiologists_on_the_operation = models.PositiveIntegerField()
+    surgeons_on_the_operation = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f'{self.organ}'
+    
+
+# class OrganPossessed(models.Model):
+    # pass
+
+
+
+# class OrganRecipient(models.Model):
+#     gender = models.CharField(max_length=1, choice=GENDER_CHOICES)
+
+
 
