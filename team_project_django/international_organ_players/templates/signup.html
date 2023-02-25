@@ -1,0 +1,14 @@
+<head>
+    <title>Sign in</title>
+</head>
+<body>
+    <p>pass = Q2yd3uek</p>
+    <h2>Registration</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Sign Up</button>
+    </form>
+    Have account? <a href="../login/"><button>Login</button></a>
+</body>
+

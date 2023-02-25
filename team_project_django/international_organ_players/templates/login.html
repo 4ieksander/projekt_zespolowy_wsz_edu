@@ -1,0 +1,12 @@
+<head>
+    <title>Log in</title>
+  </head>
+
+
+<p>pass = Q2yd3uek</p>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit" value="Log in">
+</form>
+  Dont have account? <a href="../signup/"><button>Sign Up</button></a>
