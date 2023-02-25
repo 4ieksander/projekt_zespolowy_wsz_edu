@@ -1,0 +1,21 @@
+# Pliki i foldery związane z systemem operacyjnym
+.DS_Store
+Thumbs.db
+
+# Pliki i foldery związane z Pythonem
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyc/
+
+# Pliki i foldery związane z aplikacją Django
+*.log
+*.pot
+*.pyc
+*.swp
+*.swo
+local_settings.py
+
+# Virtual environment
+venv/
