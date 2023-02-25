@@ -10,4 +10,5 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('signup/', views.signup, name='register'),
+    path('create_random_organ_donor/', views.create_random_organ_donor, name='create_random_organ_donor')
 ]
