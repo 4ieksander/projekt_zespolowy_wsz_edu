@@ -1,4 +1,8 @@
+from django import forms
+from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
+
 
 
 
@@ -79,6 +83,45 @@ SCALE_TO_FIVE_CHOICES = [
     (5,5),
 ]
 
+class PlayerAttributes(models.Model):
+    attribute = models.CharField(max_length=20)
+    multiplier_for_operation_skills = models.FloatField()
+    change_over_time = models.FloatField(help_text="per hour")
+
+class Booster(models.Model):
+    name_of_booster = models.CharField(max_length=20)
+    which_improves = models.ManyToManyField(PlayerAttributes, related_name='booster_improves', blank=True)
+    which_worsens = models.ManyToManyField(PlayerAttributes, related_name='booster_worses', blank=True)
+    how_long_it_takes = models.PositiveSmallIntegerField()
+
+class Procedure(models.Model):
+    id_of_procedure = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=64)
+
+class Equipment(models.Model):
+    name_of_equipment = models.CharField(max_length=20)
+    enables_the_procedure = models.ForeignKey(Procedure, on_delete=models.CASCADE)
+    price = models.PositiveIntegerField()
+
+
+class Player(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    avatar = models.PositiveSmallIntegerField(help_text="ID of avatar")
+    nickname = models.CharField(max_length=30)
+    stamina = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
+    alcohol = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
+    temperature = models.FloatField(default=36.6)
+    sight = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
+    hunger = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
+    mental_state =models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
+    drugs = models.ManyToManyField(Booster, related_name='players',blank=True)
+    dementia = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
+    time_per_shift = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
+    knowledge = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
+    intelligence =models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
+    created_at = models.DateTimeField(default=timezone.now)
+    equipment = models.ManyToManyField(Equipment, related_name='players', blank=True)
+    nationality = models.CharField(max_length=30)
 
 
 class OrganDonor(models.Model):
@@ -118,6 +161,7 @@ class OrganData(models.Model):
     nurses_on_the_operation = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
     anesthesiologists_on_the_operation = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
     surgeons_on_the_operation = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
+    procedures = models.ManyToManyField(Procedure, related_name='organs')
 
     def __str__(self):
         return f'{self.organ}'
@@ -211,7 +255,7 @@ class OrganStorageArea(models.Model):
 
 class Clinic(models.Model):
     name = models.CharField(max_length=100)
-    # owner
+    owner = models.ForeignKey(Player, on_delete=models.CASCADE)
     apperance = models.PositiveSmallIntegerField(default=1, choices=SCALE_TO_TWENTY_CHOICES, help_text='Scale from 1 to 20')
     vehicle = models.ManyToManyField(Vehicle, related_name='clinics', blank=True)
     vehicle_storages = models.ManyToManyField(VehicleStorageArea, related_name='clinics', blank=True) #Zmiana na VehicleStorageArea?
@@ -222,6 +266,8 @@ class Clinic(models.Model):
     technical_staff = models.ManyToManyField(TechnicalStaff, related_name='clinics', blank=True)
     medical_personnel = models.ManyToManyField(MedicalStaff, related_name='clinics', blank=True)
     rating = models.IntegerField(default=90, help_text='Rating scale from 1 to 100')
+    equipment = models.ManyToManyField(Equipment, related_name='clinics', blank=True)
+
 
     def __str__(self):
         return self.name
