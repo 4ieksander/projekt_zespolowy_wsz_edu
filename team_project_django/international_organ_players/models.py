@@ -80,7 +80,7 @@ class OrganDonor(models.Model):
     def __str__(self):
         return f"{self.gender} patient, age {self.age}"
 
-class OrganData(models.Model):
+class OrganData(models.Model): 
     organ = models.CharField(max_length=32, primary_key=True)
     operation_time = models.PositiveIntegerField()
     max_delivery_time = models.PositiveIntegerField()
@@ -88,6 +88,7 @@ class OrganData(models.Model):
     min_price = models.PositiveIntegerField(help_text="counted in thousans Dollars")
     max_price = models.PositiveIntegerField(help_text="counted in thousans Dollars")
     difficulty_of_transportation = models.CharField(max_length=64, default='easy')
+    #trudność przechowywania
     people_to_transport = models.PositiveIntegerField()
     nurses_on_the_operation = models.PositiveIntegerField()
     anesthesiologists_on_the_operation = models.PositiveIntegerField()
@@ -168,19 +169,29 @@ class Vehicle(models.Model):
     def __str__(self):
         return f'{self.vehicle}, max speed {self.speed} km/h'
 
+class OrganStorageArea(models.Model):
+    storage_name = models.CharField(max_length=20)
+    organ_depot_level = models.PositiveIntegerField(choices=SCALE_TO_FIVE_CHOICES)
+    capacity = models.PositiveIntegerField(choices=SCALE_TO_TWENTY_CHOICES, max_length=2)
+    multiplier_for_organ_suitability = models.FloatField(default=1.00, help_text="type = float")
+    mobile = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.storage_name
 
 class Clinic(models.Model):
     name = models.CharField(max_length=100)
+    # owner
     appearance_scale = models.PositiveSmallIntegerField(default=1, help_text='Scale from 1 to 20')
-    vehicle = models.ManyToManyField(Vehicle)
-    garage = models.BooleanField(default=False)
+    vehicle = models.ManyToManyField(Vehicle, related_name='clinics', blank=True)
+    garage = models.BooleanField(default=False) #Zmiana na VehicleStorageArea?
     helipad = models.BooleanField(default=False)
     runway = models.BooleanField(default=False)
-    hangar = models.BooleanField(default=False)
+    hangar = models.BooleanField(default=False)#Zmiana na VehicleStorageArea?
     mortuary_capacity = models.IntegerField(default=0, help_text='Capacity for number of persons')
-    organ_fridge = models.BooleanField(default=False)
-    technical_staff = models.ManyToManyField(TechnicalStaff, related_name='clinics')
-    medical_personnel = models.ManyToManyField(MedicalStaff, related_name='clinics')
+    organ_fridge = models.BooleanField(default=False) #miejsce do składowania organow
+    technical_staff = models.ManyToManyField(TechnicalStaff, related_name='clinics', blank=True)
+    medical_personnel = models.ManyToManyField(MedicalStaff, related_name='clinics', blank=True)
     rating = models.IntegerField(default=100, help_text='Rating scale from 1 to 100')
 
     def __str__(self):
