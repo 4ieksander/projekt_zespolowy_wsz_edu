@@ -148,10 +148,31 @@ class TechnicalStaff(models.Model):
     def __str__(self):
         return f'{self.profession} {self.surname} age {self.age}'
 
+class VehicleStorageArea(models.Model):
+    place_name = models.CharField(max_length=20)
+    maximum_capacity = models.PositiveSmallIntegerField()
+    
+    def __str__(self):
+        return self.place_name
+
+
+class Vehicle(models.Model):
+    vehicle_storage_area = models.ForeignKey(VehicleStorageArea, on_delete=models.CASCADE)
+    vehicle = models.CharField(max_length=20)
+    speed = models.PositiveSmallIntegerField(help_text='in km/h')
+    purchase_price = models.PositiveIntegerField()
+    maintenance_price = models.PositiveIntegerField(help_text='per day')
+    price_per_km = models.PositiveIntegerField()
+    minimum_distance = models.PositiveIntegerField(default=0)
+    
+    def __str__(self):
+        return f'{self.vehicle}, max speed {self.speed} km/h'
+
+
 class Clinic(models.Model):
     name = models.CharField(max_length=100)
     appearance_scale = models.PositiveSmallIntegerField(default=1, help_text='Scale from 1 to 20')
-    vehicle = models.CharField(max_length=50, default='bicycle')
+    vehicle = models.ManyToManyField(Vehicle)
     garage = models.BooleanField(default=False)
     helipad = models.BooleanField(default=False)
     runway = models.BooleanField(default=False)
