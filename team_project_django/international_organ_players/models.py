@@ -83,26 +83,55 @@ SCALE_TO_FIVE_CHOICES = [
     (5,5),
 ]
 
+
+# class OrganPossessed(models.Model):
+    # pass                  # już mi się teraz nie chce XDD
+
+
 class PlayerAttributes(models.Model):
     attribute = models.CharField(max_length=20)
     multiplier_for_operation_skills = models.FloatField()
     change_over_time = models.FloatField(help_text="per hour")
+
+    def __str__(self):
+        return self.attribute
+
 
 class Booster(models.Model):
     name_of_booster = models.CharField(max_length=20)
     which_improves = models.ManyToManyField(PlayerAttributes, related_name='booster_improves', blank=True)
     which_worsens = models.ManyToManyField(PlayerAttributes, related_name='booster_worses', blank=True)
     how_long_it_takes = models.PositiveSmallIntegerField()
+   
+    def __str__(self):
+        return self.name_of_booster
+
 
 class Procedure(models.Model):
     id_of_procedure = models.AutoField(primary_key=True)
     name = models.CharField(max_length=64)
 
+    def __str__(self):
+        return f'id: {self.id_of_procedure}, {self.name}'
+
+
 class Equipment(models.Model):
     name_of_equipment = models.CharField(max_length=20)
-    enables_the_procedure = models.ForeignKey(Procedure, on_delete=models.CASCADE)
+    enables_the_procedure = models.ForeignKey(Procedure, on_delete=models.CASCADE, related_name='equipment')
     price = models.PositiveIntegerField()
 
+    def __str__(self):
+        return self.name_of_equipment
+    
+
+class Location(models.Model):
+    location_name = models.CharField(max_length=30)
+    coordinator_x = models.FloatField()
+    coordinator_y = models.FloatField()
+
+    def __str__(self):
+        return self.location_name
+    
 
 class Player(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -122,6 +151,10 @@ class Player(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     equipment = models.ManyToManyField(Equipment, related_name='players', blank=True)
     nationality = models.CharField(max_length=30)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='players', blank=True)
+
+def __str__(self):
+        return self.nickname
 
 
 class OrganDonor(models.Model):
@@ -148,6 +181,7 @@ class OrganDonor(models.Model):
     def __str__(self):
         return f"{self.gender} patient, age {self.age}"
 
+
 class OrganData(models.Model): 
     organ = models.CharField(max_length=32, primary_key=True)
     operation_time = models.PositiveIntegerField()    
@@ -165,19 +199,20 @@ class OrganData(models.Model):
 
     def __str__(self):
         return f'{self.organ}'
-    
+
 
 class OrganRecipient(models.Model):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
-    organ = models.ForeignKey(OrganData, on_delete=models.CASCADE)
+    organ = models.ForeignKey(OrganData, on_delete=models.CASCADE, related_name='organ_recipients')
     blood_type = models.CharField(max_length=3, choices=BLOOD_TYPE_CHOICES)
     maximum_waiting_time = models.PositiveIntegerField()
     skin_color = models.CharField(max_length=10, choices=SKIN_COLOR_CHOICES)
     price = models.PositiveIntegerField(help_text="in Dollars")
-    location = models.CharField(max_length=30, default='Wroclaw')
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='organ_recipients')
    
     def __str__(self):
         return f'{self.organ} with blood type {self.blood_type} and from {self.location}'
+
 
 class MedicalStaff(models.Model):
     MEDICAL_PROFESSION_CHOICES = [
@@ -185,6 +220,7 @@ class MedicalStaff(models.Model):
         ('surgeon', 'Surgeon'),
         ('anesthesiologist', 'Anesthesiologist'),
         ]
+    
     profession = models.CharField(max_length=20, choices=MEDICAL_PROFESSION_CHOICES)
     name = models.CharField(max_length=15)
     surname = models.CharField(max_length=15)
@@ -197,6 +233,7 @@ class MedicalStaff(models.Model):
     def __str__(self):
         return f'{self.profession} {self.surname} age {self.age}'
 
+
 class TechnicalStaff(models.Model):
     TECHNICAL_PROFFESION_CHOICES = [
         ('electrician', 'Electrician'),
@@ -206,6 +243,7 @@ class TechnicalStaff(models.Model):
         ('gravedigger', 'Gravedigger'),
         ('driver', 'Driver'),
         ]
+    
     profession = models.CharField(max_length=20, choices=TECHNICAL_PROFFESION_CHOICES)
     username = models.CharField(max_length=15)
     surname = models.CharField(max_length=15)
@@ -217,6 +255,7 @@ class TechnicalStaff(models.Model):
 
     def __str__(self):
         return f'{self.profession} {self.surname} age {self.age}'
+
 
 class VehicleStorageArea(models.Model):
     storage_name = models.CharField(max_length=30)
@@ -238,9 +277,9 @@ class Vehicle(models.Model):
     price_per_km = models.PositiveSmallIntegerField()
     minimum_distance = models.PositiveSmallIntegerField(default=0)
     
-    
     def __str__(self):
         return f'{self.vehicle}, max speed {self.speed} km/h, transportability level: {self.level_of_transportability}'
+
 
 class OrganStorageArea(models.Model):
     storage_name = models.CharField(max_length=20)
@@ -253,9 +292,10 @@ class OrganStorageArea(models.Model):
     def __str__(self):
         return self.storage_name
 
+
 class Clinic(models.Model):
     name = models.CharField(max_length=100)
-    owner = models.ForeignKey(Player, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='clinics')
     apperance = models.PositiveSmallIntegerField(default=1, choices=SCALE_TO_TWENTY_CHOICES, help_text='Scale from 1 to 20')
     vehicle = models.ManyToManyField(Vehicle, related_name='clinics', blank=True)
     vehicle_storages = models.ManyToManyField(VehicleStorageArea, related_name='clinics', blank=True) #Zmiana na VehicleStorageArea?
@@ -267,7 +307,7 @@ class Clinic(models.Model):
     medical_personnel = models.ManyToManyField(MedicalStaff, related_name='clinics', blank=True)
     rating = models.IntegerField(default=90, help_text='Rating scale from 1 to 100')
     equipment = models.ManyToManyField(Equipment, related_name='clinics', blank=True)
-
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name="clinics")
 
     def __str__(self):
         return self.name
@@ -278,9 +318,6 @@ class Clinic(models.Model):
 
 
 
-
-# class OrganPossessed(models.Model):
-    # pass
 
 
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import OrganDonor, OrganData, OrganRecipient, MedicalStaff, TechnicalStaff, Clinic, VehicleStorageArea, Vehicle, OrganStorageArea, Player, Equipment, Procedure, Booster, PlayerAttributes
+from .models import OrganDonor, OrganData, OrganRecipient, MedicalStaff, TechnicalStaff, Clinic, VehicleStorageArea, Vehicle, OrganStorageArea, Player, Equipment, Procedure, Booster, PlayerAttributes, Location
 
 
 admin.site.register(OrganDonor)
@@ -16,3 +16,4 @@ admin.site.register(Booster)
 admin.site.register(Procedure)
 admin.site.register(Equipment)
 admin.site.register(Player)
+admin.site.register(Location)

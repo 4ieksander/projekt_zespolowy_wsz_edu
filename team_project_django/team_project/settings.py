@@ -84,7 +84,7 @@ DATABASES = {
         # 'PASSWORD': '4qk4qaJRe3',
         # 'HOST': '194.59.159.25',
         'HOST': 'localhost',
-        'NAME': 'international_organ_players',
+        'NAME': 'iop',
         'USER': 'root',
         'PASSWORD': '',
         'PORT': '3306',
