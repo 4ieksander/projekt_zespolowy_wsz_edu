@@ -153,8 +153,8 @@ class Player(models.Model):
     nationality = models.CharField(max_length=30)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='players', blank=True)
 
-def __str__(self):
-        return self.nickname
+    def __str__(self):
+            return self.nickname
 
 
 class OrganDonor(models.Model):
