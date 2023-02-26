@@ -34,8 +34,31 @@ SKIN_COLOR_CHOICES = [
     ('Medium', 'Medium'),
     ('Dark', 'Dark')
 ]
+SCALE_TO_TWENTY_CHOICES = [
+    (1,1),
+    (2,2),
+    (3,3),
+    (4,4),
+    (5,5),
+    (6,6),
+    (7,7),
+    (8,8),
+    (9,9),
+    (10,10),
+    (11,11),
+    (12,12),
+    (13,13),
+    (14,14),
+    (15,15),
+    (16,16),
+    (17,17),
+    (18,18),
+    (19,19),
+    (20,20),
+]
 
 SCALE_TO_TEN_CHOICES = [
+    (0,0),
     (1,1),
     (2,2),
     (3,3),
@@ -48,12 +71,14 @@ SCALE_TO_TEN_CHOICES = [
     (10,10),
 ]
 SCALE_TO_FIVE_CHOICES = [
+    (0,0),
     (1,1),
     (2,2),
     (3,3),
     (4,4),
     (5,5),
 ]
+
 
 
 class OrganDonor(models.Model):
@@ -82,17 +107,17 @@ class OrganDonor(models.Model):
 
 class OrganData(models.Model): 
     organ = models.CharField(max_length=32, primary_key=True)
-    operation_time = models.PositiveIntegerField()
-    max_delivery_time = models.PositiveIntegerField()
-    difficulty_of_operation = models.CharField(max_length=2, choices=SCALE_TO_TEN_CHOICES)
-    min_price = models.PositiveIntegerField(help_text="counted in thousans Dollars")
-    max_price = models.PositiveIntegerField(help_text="counted in thousans Dollars")
-    difficulty_of_transportation = models.CharField(max_length=64, default='easy')
-    #trudność przechowywania
-    people_to_transport = models.PositiveIntegerField()
-    nurses_on_the_operation = models.PositiveIntegerField()
-    anesthesiologists_on_the_operation = models.PositiveIntegerField()
-    surgeons_on_the_operation = models.PositiveIntegerField()
+    operation_time = models.PositiveIntegerField()    
+    min_price = models.PositiveIntegerField(help_text="in Dollars")
+    max_price = models.PositiveIntegerField(help_text="in Dollars")
+    difficulty_of_transport = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
+    difficulty_of_operation = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
+    max_alive_time = models.PositiveIntegerField(help_text='in minutes')
+    difficulty_of_depot = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES, default=1) #organ_deppot_level
+    people_to_transport = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES) #level_of_transportability
+    nurses_on_the_operation = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
+    anesthesiologists_on_the_operation = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
+    surgeons_on_the_operation = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
 
     def __str__(self):
         return f'{self.organ}'
@@ -104,7 +129,7 @@ class OrganRecipient(models.Model):
     blood_type = models.CharField(max_length=3, choices=BLOOD_TYPE_CHOICES)
     maximum_waiting_time = models.PositiveIntegerField()
     skin_color = models.CharField(max_length=10, choices=SKIN_COLOR_CHOICES)
-    price = models.PositiveIntegerField()
+    price = models.PositiveIntegerField(help_text="in Dollars")
     location = models.CharField(max_length=30, default='Wroclaw')
    
     def __str__(self):
@@ -117,12 +142,12 @@ class MedicalStaff(models.Model):
         ('anesthesiologist', 'Anesthesiologist'),
         ]
     profession = models.CharField(max_length=20, choices=MEDICAL_PROFESSION_CHOICES)
-    username = models.CharField(max_length=15)
+    name = models.CharField(max_length=15)
     surname = models.CharField(max_length=15)
     age = models.PositiveSmallIntegerField()
     skill = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
     cost_per_hour = models.PositiveIntegerField()
-    maximum_time_of_shift = models.PositiveSmallIntegerField()
+    max_time_per_shift = models.PositiveSmallIntegerField(choices=SCALE_TO_TWENTY_CHOICES)
     number_of_vacation_days = models.PositiveSmallIntegerField()
 
     def __str__(self):
@@ -143,38 +168,43 @@ class TechnicalStaff(models.Model):
     age = models.PositiveSmallIntegerField()
     skill = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
     cost_per_hour = models.PositiveIntegerField()
-    maximum_time_of_shift = models.PositiveSmallIntegerField()
+    max_time_per_shift = models.PositiveSmallIntegerField(choices=SCALE_TO_TWENTY_CHOICES)
     number_of_vacation_days = models.PositiveSmallIntegerField()
 
     def __str__(self):
         return f'{self.profession} {self.surname} age {self.age}'
 
 class VehicleStorageArea(models.Model):
-    place_name = models.CharField(max_length=20)
-    maximum_capacity = models.PositiveSmallIntegerField()
-    
+    storage_name = models.CharField(max_length=30)
+    capacity = models.PositiveSmallIntegerField(choices=SCALE_TO_TWENTY_CHOICES)
+    storage_level = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
+    price = models.PositiveIntegerField()
+
     def __str__(self):
-        return self.place_name
+        return self.storage_name
 
 
 class Vehicle(models.Model):
-    vehicle_storage_area = models.ForeignKey(VehicleStorageArea, on_delete=models.CASCADE)
-    vehicle = models.CharField(max_length=20)
+    vehicle= models.CharField(max_length=20)
     speed = models.PositiveSmallIntegerField(help_text='in km/h')
+    level_of_transportability = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
+    storage_level = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
     purchase_price = models.PositiveIntegerField()
     maintenance_price = models.PositiveIntegerField(help_text='per day')
-    price_per_km = models.PositiveIntegerField()
-    minimum_distance = models.PositiveIntegerField(default=0)
+    price_per_km = models.PositiveSmallIntegerField()
+    minimum_distance = models.PositiveSmallIntegerField(default=0)
+    
     
     def __str__(self):
-        return f'{self.vehicle}, max speed {self.speed} km/h'
+        return f'{self.vehicle}, max speed {self.speed} km/h, transportability level: {self.level_of_transportability}'
 
 class OrganStorageArea(models.Model):
     storage_name = models.CharField(max_length=20)
-    organ_depot_level = models.PositiveIntegerField(choices=SCALE_TO_FIVE_CHOICES)
-    capacity = models.PositiveIntegerField(choices=SCALE_TO_TWENTY_CHOICES, max_length=2)
+    organ_depot_level = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
+    capacity = models.PositiveSmallIntegerField(choices=SCALE_TO_TWENTY_CHOICES)
     multiplier_for_organ_suitability = models.FloatField(default=1.00, help_text="type = float")
-    mobile = models.BooleanField(default=False)
+    is_mobile = models.BooleanField(default=False)
+    price = models.PositiveIntegerField()
 
     def __str__(self):
         return self.storage_name
@@ -182,17 +212,16 @@ class OrganStorageArea(models.Model):
 class Clinic(models.Model):
     name = models.CharField(max_length=100)
     # owner
-    appearance_scale = models.PositiveSmallIntegerField(default=1, help_text='Scale from 1 to 20')
+    apperance = models.PositiveSmallIntegerField(default=1, choices=SCALE_TO_TWENTY_CHOICES, help_text='Scale from 1 to 20')
     vehicle = models.ManyToManyField(Vehicle, related_name='clinics', blank=True)
-    garage = models.BooleanField(default=False) #Zmiana na VehicleStorageArea?
+    vehicle_storages = models.ManyToManyField(VehicleStorageArea, related_name='clinics', blank=True) #Zmiana na VehicleStorageArea?
     helipad = models.BooleanField(default=False)
     runway = models.BooleanField(default=False)
-    hangar = models.BooleanField(default=False)#Zmiana na VehicleStorageArea?
-    mortuary_capacity = models.IntegerField(default=0, help_text='Capacity for number of persons')
+    mortuary_capacity = models.IntegerField(default=0)
     organ_fridge = models.BooleanField(default=False) #miejsce do składowania organow
     technical_staff = models.ManyToManyField(TechnicalStaff, related_name='clinics', blank=True)
     medical_personnel = models.ManyToManyField(MedicalStaff, related_name='clinics', blank=True)
-    rating = models.IntegerField(default=100, help_text='Rating scale from 1 to 100')
+    rating = models.IntegerField(default=90, help_text='Rating scale from 1 to 100')
 
     def __str__(self):
         return self.name
