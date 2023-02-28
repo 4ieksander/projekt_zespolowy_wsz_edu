@@ -67,7 +67,7 @@ class CreateRandomOrganDonor():
             end_of_weight_range = 150
             beggin_of_height_range = 155
             end_of_height_range = 205
-        elif self.age <=100:
+        elif self.gender == 'O':
             beggin_of_weight_range = 50
             end_of_weight_range = 120
             beggin_of_height_range = 150

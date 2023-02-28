@@ -84,8 +84,6 @@ SCALE_TO_FIVE_CHOICES = [
 ]
 
 
-# class OrganPossessed(models.Model):
-    # pass                  # już mi się teraz nie chce XDD
 
 
 class PlayerAttributes(models.Model):
@@ -97,7 +95,7 @@ class PlayerAttributes(models.Model):
         return self.attribute
 
 
-class Booster(models.Model):
+class Booster(models.Model):   
     name_of_booster = models.CharField(max_length=20)
     which_improves = models.ManyToManyField(PlayerAttributes, related_name='booster_improves', blank=True)
     which_worsens = models.ManyToManyField(PlayerAttributes, related_name='booster_worses', blank=True)
@@ -135,22 +133,22 @@ class Location(models.Model):
 
 class Player(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    avatar = models.PositiveSmallIntegerField(help_text="ID of avatar")
+    avatar = models.PositiveSmallIntegerField(help_text="ID of avatar")     #czy uzytkownik moze wrzucic swoj avatar czy jest lista do wyboru? jaka rozdzielczosc?
     nickname = models.CharField(max_length=30)
-    stamina = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
-    alcohol = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
+    stamina = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES, default=10)    #czy może te wszystkie skale powinny być typu float?
+    alcohol = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES, default=0)     # wtedy będzie mógł płynnie spadać według czasu 
     temperature = models.FloatField(default=36.6)
-    sight = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
-    hunger = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
-    mental_state =models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
-    drugs = models.ManyToManyField(Booster, related_name='players',blank=True)
-    dementia = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
-    time_per_shift = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
+    sight = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES, default=5)
+    hunger = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES, default=0) #czy głód 0 -> najedzony, czy odwrotnie?
+    mental_state =models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES, default=10)
+    drugs = models.ManyToManyField(Booster, related_name='players',blank=True) #zmienić na boosters? czy to będzie deklarowane przy tworzeniu czy wgl jak to ma działać?
+    dementia = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES, default=0)
     knowledge = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
     intelligence =models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
+    time_per_shift = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)     #czy będzie można rozwijać umiejętności i czy będzie takie coś jak poziom? 
     created_at = models.DateTimeField(default=timezone.now)
     equipment = models.ManyToManyField(Equipment, related_name='players', blank=True)
-    nationality = models.CharField(max_length=30)
+    nationality = models.CharField(max_length=30) # lista krajów? 
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='players', blank=True)
 
     def __str__(self):
@@ -177,7 +175,10 @@ class OrganDonor(models.Model):
     mental_illness = models.BooleanField(default=False)
     ethnicity = models.CharField(max_length=10, choices=ETHNICITY_CHOICES)
     skin_color = models.CharField(max_length=10, choices=SKIN_COLOR_CHOICES)
-
+    created_at = models.DateTimeField(default=timezone.now)
+    # clicic ( foregin key ? )
+    # alive (true/false?)
+    # date of death? 
     def __str__(self):
         return f"{self.gender} patient, age {self.age}"
 
@@ -196,6 +197,8 @@ class OrganData(models.Model):
     anesthesiologists_on_the_operation = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
     surgeons_on_the_operation = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
     procedures = models.ManyToManyField(Procedure, related_name='organs')
+    does_blood_type_matter = models.BooleanField(default=True)
+    does_skin_color_matter = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.organ}'
@@ -209,7 +212,8 @@ class OrganRecipient(models.Model):
     skin_color = models.CharField(max_length=10, choices=SKIN_COLOR_CHOICES)
     price = models.PositiveIntegerField(help_text="in Dollars")
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='organ_recipients')
-   
+    created_at = models.DateTimeField(default=timezone.now)
+
     def __str__(self):
         return f'{self.organ} with blood type {self.blood_type} and from {self.location}'
 
@@ -298,24 +302,28 @@ class Clinic(models.Model):
     owner = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='clinics')
     apperance = models.PositiveSmallIntegerField(default=1, choices=SCALE_TO_TWENTY_CHOICES, help_text='Scale from 1 to 20')
     vehicle = models.ManyToManyField(Vehicle, related_name='clinics', blank=True)
-    vehicle_storages = models.ManyToManyField(VehicleStorageArea, related_name='clinics', blank=True) #Zmiana na VehicleStorageArea?
+    vehicle_storages = models.ManyToManyField(VehicleStorageArea, related_name='clinics', blank=True) 
     helipad = models.BooleanField(default=False)
     runway = models.BooleanField(default=False)
     mortuary_capacity = models.IntegerField(default=0)
-    organ_fridge = models.BooleanField(default=False) #miejsce do składowania organow
+    organ_storage_area = models.ManyToManyField(OrganStorageArea, related_name='clinics', blank=True) 
     technical_staff = models.ManyToManyField(TechnicalStaff, related_name='clinics', blank=True)
     medical_personnel = models.ManyToManyField(MedicalStaff, related_name='clinics', blank=True)
     rating = models.IntegerField(default=90, help_text='Rating scale from 1 to 100')
     equipment = models.ManyToManyField(Equipment, related_name='clinics', blank=True)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name="clinics")
+    created_at = models.DateTimeField(default=timezone.now)
+
 
     def __str__(self):
         return self.name
     
 
-
-    
-
+class OrganPossessed(models.Model):
+    organ = models.ForeignKey(OrganData, on_delete=models.CASCADE, related_name='existings')
+    clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, related_name='organs')
+    donor = models.ForeignKey(OrganDonor, on_delete=models.CASCADE, related_name='organs')
+    acquisition_time = models.DateTimeField(default=timezone.now)
 
 
 
