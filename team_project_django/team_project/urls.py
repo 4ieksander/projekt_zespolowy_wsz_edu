@@ -16,7 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('international_organ_players/', include('international_organ_players.urls')),
+    path('iop/', include('international_organ_players.urls')),
+    path('iop-auth/', include('rest_framework.urls')),
 ]

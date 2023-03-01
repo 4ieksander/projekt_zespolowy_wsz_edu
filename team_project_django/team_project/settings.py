@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'international_organ_players',
+    'rest_framework',
+    'international_organ_players'
 ]
 
 LOGIN_URL = 'login/'
