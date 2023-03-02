@@ -150,6 +150,8 @@ class Player(models.Model):
     equipment = models.ManyToManyField(Equipment, related_name='players', blank=True)
     nationality = models.CharField(max_length=30) # lista krajów? 
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='players', blank=True)
+    dollars = models.BigIntegerField(default=100000)
+    bitcoins = models.DecimalField(default=0.5, max_digits=20, decimal_places=6)
 
     def __str__(self):
             return self.nickname
@@ -299,7 +301,7 @@ class OrganStorageArea(models.Model):
 
 class Clinic(models.Model):
     name = models.CharField(max_length=100)
-    owner = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='clinics')
+    owner = models.OneToOneField(Player, on_delete=models.CASCADE, related_name='clinics')
     apperance = models.PositiveSmallIntegerField(default=1, choices=SCALE_TO_TWENTY_CHOICES, help_text='Scale from 1 to 20')
     vehicle = models.ManyToManyField(Vehicle, related_name='clinics', blank=True)
     vehicle_storages = models.ManyToManyField(VehicleStorageArea, related_name='clinics', blank=True) 

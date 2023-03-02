@@ -3,150 +3,154 @@ from django.contrib.auth.decorators import permission_required, login_required, 
 from django.shortcuts import render, redirect
 
 from .create_random_objects import CreateRandomOrganDonor
-from .forms import SignUpForm, LoginForm, EditUserForm
 
+from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
-from .models import Location
-from .serializers import LocationSerializer
-
-class LocationListApiView(APIView):
-    # add permission to check if user is authenticated
-    permission_classes = [permissions.IsAuthenticated]
-
-    # 1. List all
-    def get(self, request, *args, **kwargs):
-        '''
-        List all the Location items for given requested user
-        '''
-        locations = Location.objects
-        serializer = LocationSerializer(locations, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # 2. Create
-    def post(self, request, *args, **kwargs):
-        '''
-        Create the Location with given Location data
-        '''
-        data = {
-            'location_name': request.data.get('location_name'), 
-            'coordinator_x': request.data.get('coordinator_x'), 
-            'coordinator_y': request.data.get('coordinator_y')
-        }
-        serializer = LocationSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class LocationDetailApiView(APIView):
-    # add permission to check if user is authenticated
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_object(self, location):
-        try:
-            return Location.objects.get(location_name = location)
-        except Location.DoesNotExist:
-            return None
-
-    # 3. Retrieve
-    def get(self, request, location, *args, **kwargs):
-        '''
-        Retrieves the location with given location_id
-        '''
-        location_instance = self.get_object(location)
-        if not location_instance:
-            return Response(
-                {"res": "Object with location name does not exists"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        serializer = LocationSerializer(location_instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # 4. Update
-    def put(self, request, location, *args, **kwargs):
-        '''
-        Updates the location item with given location_id if exists
-        '''
-        location_instance = self.get_object(location)
-        if not location_instance:
-            return Response(
-                {"res": "Object with location id does not exists"}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        data = {
-            'location_name': request.data.get('location_name'), 
-            'coordinator_x': request.data.get('coordinator_x'), 
-            'coordinator_y': request.data.get('coordinator_y')
-        }
-        serializer = LocationSerializer(instance = location_instance, data=data, partial = True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # 5. Delete
-    def delete(self, request, location, *args, **kwargs):
-        '''
-        Deletes the location item with given location_id if exists
-        '''
-        location_instance = self.get_object(location)
-        if not location_instance:
-            return Response(
-                {"res": "Object with location id does not exists"}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        location_instance.delete()
-        return Response(
-            {"res": "Object deleted!"},
-            status=status.HTTP_200_OK
-        )
+from .models import (
+    PlayerAttributes, Booster, Procedure, Equipment, Player, 
+    OrganDonor, OrganData, OrganRecipient, MedicalStaff, 
+    TechnicalStaff, VehicleStorageArea, Vehicle, OrganStorageArea, 
+    Clinic, OrganPossessed, Location,
+)
+from .serializers import (
+    PlayerSerializer, PlayerAttributesSerializer, BoosterSerializer,
+    ProcedureSerializer, EquipmentSerializer, OrganDonorSerializer, OrganDataSerializer,
+    OrganRecipientSerializer, MedicalStaffSerializer, TechnicalStaffSerializer, 
+    VehicleStorageAreaSerializer, VehicleSerializer, LocationSerializer,
+    OrganStorageAreaSerializer, ClinicSerializer, OrganPossessedSerializer,
+)
 
 
-@login_required
-def home(request):          #strona główna
-    # log.info(f"User {request.user} went to the homepage")
-    return render(request, 'home.html')
+class PlayerList(generics.ListCreateAPIView):
+    queryset = Player.objects.all()
+    serializer_class = PlayerSerializer
 
-def login_view(request):    #wbudowana funkcja login (dlatego login_view)
-    if request.method == 'POST':
-        form = LoginForm(request=request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                # log.info(f"User {username} just logged in")
-                return redirect('../')
-    else:
-        form = LoginForm()
-    return render(request, 'login.html', {'form': form})
+class PlayerDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Player.objects.all()
+    serializer_class = PlayerSerializer
 
-@login_required
-def logout_view(request):   #wbudowana funkcja logout (dlatego logout_view)
-    logout(request)
-    # log.info(f"User {request.user} just logged out")
-    return redirect('../login/')
+class PlayerAttributesListCreateView(generics.ListCreateAPIView):
+    queryset = PlayerAttributes.objects.all()
+    serializer_class = PlayerAttributesSerializer
 
-def signup(request):        #rejestracja
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=password)
-            login(request, user)
-            # log.info(f"User {username} just registered")
-            return redirect('../')
-    else:
-        form = SignUpForm()
-    return render(request, 'signup.html', {'form': form})
+class PlayerAttributesRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = PlayerAttributes.objects.all()
+    serializer_class = PlayerAttributesSerializer
+
+class BoosterListCreateView(generics.ListCreateAPIView):
+    queryset = Booster.objects.all()
+    serializer_class = BoosterSerializer
+
+class BoosterRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Booster.objects.all()
+    serializer_class = BoosterSerializer   
+    
+class ProcedureListCreateView(generics.ListCreateAPIView):
+    queryset = Procedure.objects.all()
+    serializer_class = ProcedureSerializer
+
+class ProcedureRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Procedure.objects.all()
+    serializer_class = ProcedureSerializer
+
+class EquipmentListCreateView(generics.ListCreateAPIView):
+    queryset = Equipment.objects.all()
+    serializer_class = EquipmentSerializer
+
+class EquipmentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Equipment.objects.all()
+    serializer_class = EquipmentSerializer
+
+class OrganDonorList(generics.ListCreateAPIView):
+    queryset = OrganDonor.objects.all()
+    serializer_class = OrganDonorSerializer
+
+class OrganDonorDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = OrganDonor.objects.all()
+    serializer_class = OrganDonorSerializer
+
+class OrganDataList(generics.ListCreateAPIView):
+    queryset = OrganData.objects.all()
+    serializer_class = OrganDataSerializer
+
+class OrganDataDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = OrganData.objects.all()
+    serializer_class = OrganDataSerializer
+
+class OrganRecipientList(generics.ListCreateAPIView):
+    queryset = OrganRecipient.objects.all()
+    serializer_class = OrganRecipientSerializer
+
+class OrganRecipientDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = OrganRecipient.objects.all()
+    serializer_class = OrganRecipientSerializer
+
+class MedicalStaffList(generics.ListCreateAPIView):
+    queryset = MedicalStaff.objects.all()
+    serializer_class = MedicalStaffSerializer
+
+class MedicalStaffDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MedicalStaff.objects.all()
+    serializer_class = MedicalStaffSerializer
+
+class TechnicalStaffList(generics.ListCreateAPIView):
+    queryset = TechnicalStaff.objects.all()
+    serializer_class = TechnicalStaffSerializer
+
+class TechnicalStaffDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = TechnicalStaff.objects.all()
+    serializer_class = TechnicalStaffSerializer
+
+class VehicleStorageAreaList(generics.ListCreateAPIView):
+    queryset = VehicleStorageArea.objects.all()
+    serializer_class = VehicleStorageAreaSerializer
+
+class VehicleStorageAreaDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = VehicleStorageArea.objects.all()
+    serializer_class = VehicleStorageAreaSerializer
+
+class VehicleList(generics.ListCreateAPIView):
+    queryset = Vehicle.objects.all()
+    serializer_class = VehicleSerializer
+
+class VehicleDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Vehicle.objects.all()
+    serializer_class = VehicleSerializer
+
+class LocationList(generics.ListCreateAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+
+class LocationDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+
+class OrganStorageAreaList(generics.ListCreateAPIView):
+    queryset = OrganStorageArea.objects.all()
+    serializer_class = OrganStorageAreaSerializer
+
+class OrganStorageAreaDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = OrganStorageArea.objects.all()
+    serializer_class = OrganStorageAreaSerializer
+
+class ClinicList(generics.ListCreateAPIView):
+    queryset = Clinic.objects.all()
+    serializer_class = ClinicSerializer
+
+class ClinicDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Clinic.objects.all()
+    serializer_class = ClinicSerializer
+
+class OrganPossessedList(generics.ListCreateAPIView):
+    queryset = OrganPossessed.objects.all()
+    serializer_class = OrganPossessedSerializer
+
+class OrganPossessedDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = OrganPossessed.objects.all()
+    serializer_class = OrganPossessedSerializer
 
 @login_required
 def create_random_organ_donor(request):
