@@ -2,7 +2,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import permission_required, login_required, user_passes_test
 from django.shortcuts import render, redirect
 
+from .create_random_objects import CreateRandomOrganDonor
 from .forms import SignUpForm, LoginForm, EditUserForm
+
 
 @login_required
 def home(request):          #strona główna
@@ -44,3 +46,9 @@ def signup(request):        #rejestracja
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
+
+@login_required
+def create_random_organ_donor(request):
+        create_random_organ_donor = CreateRandomOrganDonor()
+        create_random_organ_donor.create_random_organ_donor()
+        return redirect("../")
