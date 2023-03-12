@@ -49,69 +49,15 @@ class CreateRandomOrganDonor():
 
 
     def assign_random_values_to_float_variables(self):
-        self.age = self.generate_int_random_value_in_the_range(1, 100)
+        self.age = self.generate_int_random_value_in_the_range(18, 100)
         self.temperature = self.generate_int_random_value_in_the_range(34, 42)
         beggin_of_weight_range, end_of_weight_range, beggin_of_height_range, end_of_height_range = self.select_range_for_height_and_weight()
         self.weight = self.generate_int_random_value_in_the_range(beggin_of_weight_range, end_of_weight_range)
         self.height = self.generate_int_random_value_in_the_range(beggin_of_height_range, end_of_height_range)
 
     def select_range_for_height_and_weight(self):
-        if self.age == 1:
-            beggin_of_weight_range = 8
-            end_of_weight_range = 12
-            beggin_of_height_range = 60
-            end_of_height_range = 80
-        elif self.age == 2:
-            beggin_of_weight_range = 10
-            end_of_weight_range = 16
-            beggin_of_height_range = 70
-            end_of_height_range = 95
-        elif self.age == 3:
-            beggin_of_weight_range = 12
-            end_of_weight_range = 18
-            beggin_of_height_range = 80
-            end_of_height_range = 105
-        elif self.age == 4:
-            beggin_of_weight_range = 14
-            end_of_weight_range = 20
-            beggin_of_height_range = 95
-            end_of_height_range = 110
-        elif self.age <= 6:
-            beggin_of_weight_range = 17
-            end_of_weight_range = 25
-            beggin_of_height_range = 110
-            end_of_height_range = 125
-        elif self.age <= 9:
-            beggin_of_weight_range = 25
-            end_of_weight_range = 35
-            beggin_of_height_range = 115
-            end_of_height_range = 145
-        elif self.age <= 12:
-            beggin_of_weight_range = 35
-            end_of_weight_range = 50
-            beggin_of_height_range = 135
-            end_of_height_range = 160
-        elif self.age <=15 and self.gender == 'F':
-            beggin_of_weight_range = 38
-            end_of_weight_range = 65
-            beggin_of_height_range = 130
-            end_of_height_range = 160
-        elif self.age <=15 and self.gender == 'M':
-            beggin_of_weight_range = 40
-            end_of_weight_range = 70
-            beggin_of_height_range = 135
-            end_of_height_range = 170
-        elif self.age <=18 and self.gender == 'F':
-            beggin_of_weight_range = 42
-            end_of_weight_range = 80
-            beggin_of_height_range = 145
-            end_of_height_range = 180
-        elif self.age <=18 and self.gender == 'M':
-            beggin_of_weight_range = 48
-            end_of_weight_range = 90
-            beggin_of_height_range = 150
-            end_of_height_range = 190
-        elif self.gender == 'F':
+       
+        if self.gender == 'F':
             beggin_of_weight_range = 45
             end_of_weight_range = 110
             beggin_of_height_range = 150
@@ -121,7 +67,7 @@ class CreateRandomOrganDonor():
             end_of_weight_range = 150
             beggin_of_height_range = 155
             end_of_height_range = 205
-        elif self.age <=100:
+        elif self.gender == 'O':
             beggin_of_weight_range = 50
             end_of_weight_range = 120
             beggin_of_height_range = 150
