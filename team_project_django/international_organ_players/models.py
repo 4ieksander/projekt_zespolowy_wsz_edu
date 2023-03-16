@@ -87,7 +87,7 @@ SCALE_TO_FIVE_CHOICES = [
 
 
 class PlayerAttributes(models.Model):
-    attribute = models.CharField(max_length=20)
+    attribute = models.CharField(max_length=50)
     multiplier_for_operation_skills = models.FloatField()
     change_over_time = models.FloatField(help_text="per hour")
 
@@ -96,7 +96,7 @@ class PlayerAttributes(models.Model):
 
 
 class Booster(models.Model):   
-    name_of_booster = models.CharField(max_length=20)
+    name_of_booster = models.CharField(max_length=50)
     which_improves = models.ManyToManyField(PlayerAttributes, related_name='booster_improves', blank=True)
     which_worsens = models.ManyToManyField(PlayerAttributes, related_name='booster_worses', blank=True)
     how_long_it_takes = models.PositiveSmallIntegerField()
@@ -107,14 +107,14 @@ class Booster(models.Model):
 
 class Procedure(models.Model):
     id_of_procedure = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=120)
 
     def __str__(self):
         return f'id: {self.id_of_procedure}, {self.name}'
 
 
 class Equipment(models.Model):
-    name_of_equipment = models.CharField(max_length=20)
+    name_of_equipment = models.CharField(max_length=50)
     enables_the_procedure = models.ForeignKey(Procedure, on_delete=models.CASCADE, related_name='equipment')
     price = models.PositiveIntegerField()
 
@@ -123,7 +123,7 @@ class Equipment(models.Model):
     
 
 class Location(models.Model):
-    location_name = models.CharField(max_length=30)
+    location_name = models.CharField(max_length=60)
     coordinator_x = models.FloatField()
     coordinator_y = models.FloatField()
 
@@ -228,8 +228,8 @@ class MedicalStaff(models.Model):
         ]
     
     profession = models.CharField(max_length=20, choices=MEDICAL_PROFESSION_CHOICES)
-    name = models.CharField(max_length=15)
-    surname = models.CharField(max_length=15)
+    name = models.CharField(max_length=40)
+    surname = models.CharField(max_length=40)
     age = models.PositiveSmallIntegerField()
     skill = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
     cost_per_hour = models.PositiveIntegerField()
@@ -251,8 +251,8 @@ class TechnicalStaff(models.Model):
         ]
     
     profession = models.CharField(max_length=20, choices=TECHNICAL_PROFFESION_CHOICES)
-    username = models.CharField(max_length=15)
-    surname = models.CharField(max_length=15)
+    username = models.CharField(max_length=40)
+    surname = models.CharField(max_length=40)
     age = models.PositiveSmallIntegerField()
     skill = models.PositiveSmallIntegerField(choices=SCALE_TO_TEN_CHOICES)
     cost_per_hour = models.PositiveIntegerField()
@@ -264,7 +264,7 @@ class TechnicalStaff(models.Model):
 
 
 class VehicleStorageArea(models.Model):
-    storage_name = models.CharField(max_length=30)
+    storage_name = models.CharField(max_length=50)
     capacity = models.PositiveSmallIntegerField(choices=SCALE_TO_TWENTY_CHOICES)
     storage_level = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
     price = models.PositiveIntegerField()
@@ -274,7 +274,7 @@ class VehicleStorageArea(models.Model):
 
 
 class Vehicle(models.Model):
-    vehicle= models.CharField(max_length=20)
+    vehicle= models.CharField(max_length=50)
     speed = models.PositiveSmallIntegerField(help_text='in km/h')
     level_of_transportability = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
     storage_level = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
@@ -288,7 +288,7 @@ class Vehicle(models.Model):
 
 
 class OrganStorageArea(models.Model):
-    storage_name = models.CharField(max_length=20)
+    storage_name = models.CharField(max_length=40)
     organ_depot_level = models.PositiveSmallIntegerField(choices=SCALE_TO_FIVE_CHOICES)
     capacity = models.PositiveSmallIntegerField(choices=SCALE_TO_TWENTY_CHOICES)
     multiplier_for_organ_suitability = models.FloatField(default=1.00, help_text="type = float")
