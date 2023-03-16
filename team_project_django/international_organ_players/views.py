@@ -4,11 +4,13 @@ from django.shortcuts import render, redirect
 
 from .create_random_objects import CreateRandomOrganDonor
 
-from rest_framework import generics
+from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from .models import (
     PlayerAttributes, Booster, Procedure, Equipment, Player, 
     OrganDonor, OrganData, OrganRecipient, MedicalStaff, 
@@ -21,8 +23,34 @@ from .serializers import (
     OrganRecipientSerializer, MedicalStaffSerializer, TechnicalStaffSerializer, 
     VehicleStorageAreaSerializer, VehicleSerializer, LocationSerializer,
     OrganStorageAreaSerializer, ClinicSerializer, OrganPossessedSerializer,
+    UserSerializer, TokenSerializer
 )
 
+
+class RegisterView(generics.CreateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = (permissions.AllowAny,)
+
+
+class LoginView(ObtainAuthToken):
+    serializer_class = TokenSerializer
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        login(request, user)
+        return super(LoginView, self).post(request, *args, **kwargs)
+
+
+class LogoutView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        logout(request)
+        return Response(status=status.HTTP_200_OK)
 
 class PlayerList(generics.ListCreateAPIView):
     queryset = Player.objects.all()
