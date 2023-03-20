@@ -5,11 +5,9 @@ from django.shortcuts import render, redirect
 from .create_random_objects import CreateRandomOrganDonor
 
 from rest_framework import generics, permissions, status
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -199,3 +197,7 @@ def create_random_organ_donor(request):
         create_random_organ_donor = CreateRandomOrganDonor()
         create_random_organ_donor.create_random_organ_donor()
         return redirect("../")
+
+def home(request):
+    user = request.user
+    return render(request, 'home.html', {'user': user})
