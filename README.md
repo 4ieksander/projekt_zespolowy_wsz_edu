@@ -11,4 +11,5 @@ To open project in django:
 7. migrate models ( python manage.py migrate )
 8. create superuser ( python manage.py createsuperuser ) 
 9. runserver ( python manage.py runserver )
+10. add .env file into team_project directory, add DB_PASSWORD=Your_Password_Here
 server is available under 127.0.0.1:8000/iop/ :)
