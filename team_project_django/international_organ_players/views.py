@@ -35,7 +35,7 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.serializer_class(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        return super(RegisterView, )
+        return super(RegisterView, self).post()
 
 
 class LoginView(ObtainAuthToken):
