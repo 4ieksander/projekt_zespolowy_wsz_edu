@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
@@ -18,7 +19,28 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         Token.objects.create(user=user)
         return user
+    
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
 
+    def validate(self, data):
+        user = authenticate(username=data['username'], password=data['password'])
+        if user:
+            if not user.is_active:
+                raise serializers.ValidationError("User account is disabled.")
+        else:
+            raise serializers.ValidationError("Unable to log in with provided credentials.")
+        data['user'] = user
+        return data
+
+class LogoutSerializer(serializers.Serializer):
+    def validate(self, data):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return data
+        else:
+            raise serializers.ValidationError("User is not authenticated.")
 
 class TokenSerializer(serializers.ModelSerializer):
     class Meta:
